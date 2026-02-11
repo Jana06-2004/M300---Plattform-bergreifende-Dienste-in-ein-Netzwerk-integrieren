@@ -39,54 +39,129 @@ Damit eine sichere Verbindung zu GitHub möglich ist, wurde ein SSH-Key erstellt
 Der öffentliche Schlüssel wurde im GitHub-Account unter SSH Keys eingefügt 
  
 ## 4. Installation Git (Git Bash)
+
 Git wurde installiert, um lokal mit dem GitHub-Repository arbeiten zu können.
-Konfiguration
-git config --global user.name "Name"git config --global user.email "Mail" 
-Repository klonen
+
+### Konfiguration
+
+```bash
+git config --global user.name "Name"
+git config --global user.email "Mail"
+```
+
+### Repository klonen
+
+```bash
 git clone <repository-link>
-Änderungen hochladen
+```
+
+### Änderungen hochladen
+
+```bash
 git add -A
-git commit -m "Kommentar"git push
+git commit -m "Kommentar"
+git push
+```
+
 Damit konnten Dateien lokal bearbeitet und online gespeichert werden.
 
+---
+
 ## 5. Installation VirtualBox
+
 VirtualBox wurde installiert, um virtuelle Maschinen auszuführen.
-Ubuntu herunterladen
+
+### Ubuntu herunterladen
+
 Ein Ubuntu Desktop ISO wurde heruntergeladen und gespeichert.
-Virtuelle Maschine erstellen
+
+### Virtuelle Maschine erstellen
+
 In VirtualBox wurde eine neue VM erstellt:
-Typ: Linux Ubuntu
-RAM: ca. 2 GB
-Speicher: ca. 25 GB
-ISO eingebunden
+
+- Typ: Linux Ubuntu  
+- RAM: ca. 2 GB  
+- Speicher: ca. 25 GB  
+
+### ISO einbinden
+
 Ubuntu wurde anschliessend installiert.
-System aktualisieren
+
+### System aktualisieren
+
 Nach der Installation wurden Updates durchgeführt:
-sudo apt updatesudo apt upgrade
-Apache installieren
+
+```bash
+sudo apt update
+sudo apt upgrade
+```
+
+### Apache installieren
+
 Ein Webserver wurde installiert:
+
+```bash
 sudo apt install apache2
+```
+
 Test im Browser:
-http://localhost 
+
+```
+http://localhost
+```
+
+---
 
 ## 6. Installation Vagrant
+
 Vagrant wurde installiert, um virtuelle Maschinen automatisch zu erstellen.
-Erste VM erstellen
-Ordner erstellt:
-mkdir VagrantVMcd VagrantVM
-VM initialisiert und gestartet:
+
+### Erste VM erstellen
+
+Ordner erstellen:
+
+```bash
+mkdir VagrantVM
+cd VagrantVM
+```
+
+VM initialisieren und starten:
+
+```bash
 vagrant init ubuntu/xenial64
 vagrant up
-SSH-Verbindung:
+```
+
+### SSH-Verbindung
+
+```bash
 vagrant ssh
+```
+
 Die VM lief nun automatisch und konnte verwendet werden.
-Automatisierung testen
+
+---
+
+### Automatisierung testen
+
 Ein Beispielprojekt mit Webserver wurde gestartet:
+
+```bash
 vagrant up
-Webseite über Browser getestet:
-http://localhost:8080 
-VM wieder gelöscht:
+```
+
+Webseite über Browser testen:
+
+```
+http://localhost:8080
+```
+
+VM wieder löschen:
+
+```bash
 vagrant destroy -f
+```
+
 
 ## 7. Visual Studio Code einrichten
 Visual Studio Code wurde als Entwicklungsumgebung installiert.

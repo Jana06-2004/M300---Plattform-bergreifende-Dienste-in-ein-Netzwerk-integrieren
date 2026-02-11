@@ -36,9 +36,57 @@ Das Repository dient als zentraler Speicherort für alle Arbeiten im Modul.
  
 ### SSH-Key erstellen
 Damit eine sichere Verbindung zu GitHub möglich ist, wurde ein SSH-Key erstellt:
+Der öffentliche Schlüssel wurde im GitHub-Account unter SSH Keys eingefügt 
  
- 
+## 4. Installation Git (Git Bash)
+Git wurde installiert, um lokal mit dem GitHub-Repository arbeiten zu können.
+Konfiguration
+git config --global user.name "Name"git config --global user.email "Mail" 
+Repository klonen
+git clone <repository-link>
+Änderungen hochladen
+git add -A
+git commit -m "Kommentar"git push
+Damit konnten Dateien lokal bearbeitet und online gespeichert werden.
 
+## 5. Installation VirtualBox
+VirtualBox wurde installiert, um virtuelle Maschinen auszuführen.
+Ubuntu herunterladen
+Ein Ubuntu Desktop ISO wurde heruntergeladen und gespeichert.
+Virtuelle Maschine erstellen
+In VirtualBox wurde eine neue VM erstellt:
+Typ: Linux Ubuntu
+RAM: ca. 2 GB
+Speicher: ca. 25 GB
+ISO eingebunden
+Ubuntu wurde anschliessend installiert.
+System aktualisieren
+Nach der Installation wurden Updates durchgeführt:
+sudo apt updatesudo apt upgrade
+Apache installieren
+Ein Webserver wurde installiert:
+sudo apt install apache2
+Test im Browser:
+http://localhost 
+
+## 6. Installation Vagrant
+Vagrant wurde installiert, um virtuelle Maschinen automatisch zu erstellen.
+Erste VM erstellen
+Ordner erstellt:
+mkdir VagrantVMcd VagrantVM
+VM initialisiert und gestartet:
+vagrant init ubuntu/xenial64
+vagrant up
+SSH-Verbindung:
+vagrant ssh
+Die VM lief nun automatisch und konnte verwendet werden.
+Automatisierung testen
+Ein Beispielprojekt mit Webserver wurde gestartet:
+vagrant up
+Webseite über Browser getestet:
+http://localhost:8080 
+VM wieder gelöscht:
+vagrant destroy -f
 
 ## 7. Visual Studio Code einrichten
 Visual Studio Code wurde als Entwicklungsumgebung installiert.

@@ -2,7 +2,6 @@
 
 Hallo! Test!
 
-# 09.02.2026
 # Dokumentation M300 – Einrichtung der Toolumgebung
  
 ## 1. Ausgangslages
@@ -196,7 +195,6 @@ Die eingerichtete Toolumgebung bildet die Basis für Infrastructure as Code und 
 Mit Git, VirtualBox, Vagrant und Visual Studio Code steht eine vollständige Entwicklungsumgebung zur Verfügung.
 
 
-# 10.02.2026
 # M300 – 20 Infrastruktur-Automatisierung
 
 ## 1. Ausgangslage
@@ -704,3 +702,259 @@ Folgende Tests wurden durchgeführt:
 
 ## 10. Fazit
 Mit Firewall, Reverse Proxy, SSH, HTTPS und LDAP wurde die Infrastruktur erfolgreich abgesichert. Damit wurde ein Sicherheitsniveau erreicht, das für professionelle Umgebungen geeignet ist.
+
+
+# M300 – 30 Container
+
+## 1. Ausgangslage
+Im vierten Teil des Moduls M300 wurde das Thema **Containerisierung** behandelt. Dabei wurde untersucht, wie Applikationen und Services in Containern betrieben werden können. Ziel war es, Docker als modernes Werkzeug kennenzulernen, um Anwendungen effizient, portabel und isoliert betreiben zu können.
+
+---
+
+## 2. Ziel
+In diesem Auftrag sollten folgende Fähigkeiten erarbeitet werden:
+- Applikationen als Container starten und verwalten
+- Eigene Images mit Dockerfiles erstellen
+- Netzwerke zwischen Containern konfigurieren
+- Persistente Speicherung mit Volumes umsetzen
+- Images bereitstellen (Docker Hub & private Registry)
+
+Am Ende sollte eine containerisierte Umgebung stehen, die portabel, reproduzierbar und flexibel einsetzbar ist.
+
+---
+
+## 3. Container – Grundlagen
+Container ermöglichen eine komplett neue Art der Softwareentwicklung:
+- Starten in Millisekunden
+- Teilen den Kernel des Host-Systems
+- Benötigen kaum Ressourcen
+- Ideal für Microservices
+- Portabel auf jeder Plattform
+
+### Geschichte
+Container existieren schon lange, z.B. durch *chroot*, *FreeBSD Jails*, *Solaris Zones* und *OpenVZ*. 2013 machte Docker Container massentauglich durch:
+- Portable Images
+- Einfache CLI
+- Eigene Registry
+
+---
+
+## 4. Docker – Architektur & Konzepte
+Docker besteht aus:
+
+### Docker Daemon
+- Startet Container
+- Baut und speichert Images
+
+### Docker Client
+- Befehlseingabe (CLI)
+- Kommuniziert per REST-API
+
+### Images
+- Unveränderliche Templates
+- Versioniert (Tags, z. B. `ubuntu:20.04`)
+
+### Container
+- Laufende Instanzen eines Images
+- Änderungen werden im Overlay-Filesystem gespeichert
+
+### Docker Registry
+- Speicherung von Images (öffentlich oder privat)
+
+---
+
+## 5. Wichtige Docker-Befehle
+### Container starten
+```bash
+docker run hello-world
+docker run -it ubuntu /bin/bash
+docker run -d ubuntu sleep 20
+docker run -d --rm ubuntu sleep 20
+```
+
+### Container anzeigen
+```bash
+docker ps
+docker ps -a
+docker ps -aq
+```
+
+### Images anzeigen
+```bash
+docker images
+docker image ls
+```
+
+### Container löschen
+```bash
+docker rm <name>
+docker rm -f $(docker ps -aq)
+```
+
+### Images löschen
+```bash
+docker rmi ubuntu
+docker rmi $(docker images -q -f dangling=true)
+```
+
+### Container Infos
+```bash
+docker logs <id>
+docker inspect <id>
+docker diff <id>
+docker top <id>
+```
+
+---
+
+## 6. Dockerfile – Eigene Images erstellen
+Ein Dockerfile beschreibt Schritt für Schritt, wie ein Image erstellt wird.
+
+### Build & Run
+```bash
+docker build -t mysql .
+docker run --rm -d --name mysql mysql
+```
+
+### Wichtige Dockerfile-Anweisungen
+- **FROM** – Basisimage
+- **RUN** – Befehle beim Build
+- **COPY/ADD** – Dateien kopieren
+- **CMD/ENTRYPOINT** – Startbefehle
+- **EXPOSE** – Ports freigeben
+- **ENV** – Umgebungsvariablen
+- **VOLUME** – Persistente Speicherorte
+
+### Testen im Container
+```bash
+docker exec -it mysql bash
+ps -ef
+netstat -tulpen
+```
+
+---
+
+## 7. Netzwerk-Anbindung
+### Ports weiterleiten
+```bash
+docker run -d -p 3306:3306 mysql
+docker run -d -P mysql
+```
+
+### Dockerfile
+```Dockerfile
+EXPOSE 3306
+```
+
+### MySQL-Zugriff vom Host
+```bash
+mysql -u root -p admin -h 127.0.0.1
+```
+
+### Docker Netzwerke
+Standardnetzwerke:
+- **bridge**
+- **host**
+- **none**
+
+### Netzwerke verwalten
+```bash
+docker network ls
+docker network inspect bridge
+```
+
+### Container in Netzwerk starten
+```bash
+docker run -d --network=isolated_nw --name mysql mysql
+docker run -it --network=isolated_nw ubuntu bash
+```
+
+---
+
+## 8. Volumes – Persistente Daten
+### Arten von Volumes
+- Anonyme Volumes
+- Host-Mounts
+- Named Volumes
+
+### Beispiele
+```bash
+docker run -v /data busybox
+docker run -v ~/data/mysql:/var/lib/mysql mysql
+docker volume create mysql
+docker run -v mysql:/var/lib/mysql mysql
+```
+
+### Daten prüfen
+```bash
+docker inspect <container>
+sudo cat /var/lib/docker/volumes/.../_data/*
+```
+
+---
+
+## 9. Image-Bereitstellung
+### Tags & Namen
+```bash
+docker build -t mysql:1.0 .
+docker tag mysql username/mysql
+```
+
+### Docker Hub Upload
+```bash
+docker push username/mysql
+```
+
+### Suche & Pull
+```bash
+docker search mysql
+docker pull ubuntu
+```
+
+### Export / Import
+```bash
+docker save mysql -o mysql.tar
+docker load -i mysql.tar
+```
+
+### Private Registry
+```bash
+docker run -d -p 5000:5000 --restart=always --name registry \  
+-v /var/spool/docker-registry:/var/lib/registry registry:2
+```
+
+---
+
+## 10. Verifikation & Tests
+Durchgeführte Tests:
+- Container erfolgreich gestartet und beendet
+- Eigene Images gebaut und getestet
+- Netzwerkkommunikation via Curl überprüft
+- Persistente Daten über Volumes gespeichert
+- Images exportiert, importiert und in eine Registry gepusht
+
+**Ergebnis:** Alle Tests funktionierten stabil und reproduzierbar.
+
+---
+
+## 11. Varianten – Pro / Kontra
+### Container vs. VMs
+**Pro:** Schnell, leichtgewichtig, portabel
+**Kontra:** Weniger Isolation als VMs
+
+### Docker Hub vs. Private Registry
+**Private Registry – Pro:** Kontrolle, schnell im LAN, keine Limits
+**Docker Hub – Pro:** Öffentlich, einfach
+
+---
+
+## 12. Erkenntnisse
+- Container sind essenziell für moderne IT-Strukturen
+- Docker erleichtert Entwicklung und Deployment enorm
+- Volumes und Netzwerke sind fundamental für produktive Umgebungen
+- Eigene Images können leicht gebaut und geteilt werden
+
+---
+
+## 13. Fazit
+Mit Docker wurde eine vollständige containerisierte Umgebung aufgebaut. Damit stehen nun Werkzeuge bereit, die in Cloud-, DevOps- und Microservice-Architekturen essenziell sind.

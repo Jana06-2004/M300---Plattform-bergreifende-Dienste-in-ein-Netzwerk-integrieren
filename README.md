@@ -473,3 +473,234 @@ Mit:
 
 konnte eine automatisierte und reproduzierbare Infrastruktur aufgebaut werden.
 Damit ist die Basis für professionelle Cloud- und DevOps-Prozesse geschaffen.
+
+
+# M300 – 25 Infrastruktur-Sicherheit
+
+## 1. Ausgangslage
+Im dritten Teil des Moduls M300 ging es um das Thema **Infrastruktur-Sicherheit**. Während in den vorherigen Aufträgen die Toolumgebung eingerichtet und eine dynamische Infrastruktur aufgebaut wurde, lag der Fokus nun darauf, diese Infrastruktur abzusichern.
+
+Die behandelten Sicherheitsaspekte umfassen:
+- Firewall-Konfiguration (UFW)
+- Reverse Proxy
+- Benutzer- und Rechteverwaltung
+- SSH-Sicherheit (Public Keys, Tunnel)
+- Authentifizierung & Autorisierung (Apache / LDAP)
+
+---
+
+## 2. Ziel
+Ziel dieses Auftrags war es, verschiedene Sicherheitsmechanismen zu verstehen und praktisch umzusetzen, darunter:
+
+- Absicherung der VMs durch eine Firewall
+- Nutzung eines Reverse Proxy zur Verschlüsselung und Adressmaskierung
+- Saubere Benutzer- und Rechteverwaltung
+- Sichere SSH-Verbindungen via Public-Key-Verfahren
+- Absicherung des Apache-Webservers mit HTTPS und LDAP
+
+Am Ende sollte eine sichere und geschützte Infrastruktur entstehen.
+
+---
+
+## 3. Firewall & Reverse Proxy
+
+### 3.1 Firewall (UFW)
+Zuerst wurden die offenen Ports geprüft:
+```bash
+netstat -tulpen
+```
+
+UFW Installation & Aktivierung:
+```bash
+sudo apt-get install ufw
+sudo ufw enable
+```
+
+### Regeln konfigurieren
+**SSH nur für Host freigeben:**
+```bash
+sudo ufw allow from <Meine-IP> to any port 22
+```
+
+**HTTP für alle öffnen:**
+```bash
+sudo ufw allow 80/tcp
+```
+
+**MySQL nur für Webserver öffnen:**
+```bash
+sudo ufw allow from <Web-IP> to any port 3306
+```
+
+### Tests
+```bash
+curl -f 192.168.55.101
+curl -f 192.168.55.100:3306
+```
+
+### Fehler & Lösungen
+- SSH blockiert → falsche Regel → IP korrigiert
+- MySQL nicht erreichbar → Webserver-IP falsch → neu gesetzt
+
+---
+
+## 3.2 Reverse Proxy
+Apache als Reverse Proxy einrichten.
+
+### Module aktivieren
+```bash
+sudo a2enmod proxy
+sudo a2enmod proxy_html
+sudo a2enmod proxy_http
+```
+
+### Beispielkonfiguration
+```apache
+ProxyRequests Off
+<Proxy *>
+    Order deny,allow
+    Allow from all
+</Proxy>
+
+ProxyPass /master http://master
+ProxyPassReverse /master http://master
+```
+
+Ergebnis: Aufrufe wurden korrekt an das Backend weitergeleitet.
+
+---
+
+## 4. Benutzer- & Rechteverwaltung
+Linux trennt Benutzer und deren Rechte strikt. Im Auftrag wurde behandelt:
+
+- root, Systembenutzer, normale Benutzer
+- Gruppen & Gruppenzugehörigkeiten
+- Dateisystemrechte & Inodes
+
+Rechte anzeigen:
+```bash
+ls -ldh /var/mail
+```
+
+Rechte ändern:
+```bash
+chmod 755 datei
+chown user:group datei
+chgrp gruppe datei
+```
+
+### Fehler & Lösungen
+- Falsche Rechte setzten → Apache konnte nicht starten → Rechte korrigiert
+
+---
+
+## 5. SSH – Sichere Kommunikation
+SSH wurde erweitert um:
+- Public-Key-Verfahren
+- SSH-Tunneling
+
+### Public-Key-Verfahren
+Key generieren:
+```bash
+ssh-keygen -t rsa -b 4096
+```
+
+Key verteilen:
+```bash
+ssh-copy-id -i ~/.ssh/id_rsa.pub admin01@db01
+```
+
+Login testen:
+```bash
+ssh admin01@db01
+```
+
+### SSH-Tunnel
+**Webserver über lokalen Port 8000 erreichen:**
+```bash
+ssh -L 8000:localhost:80 web01 -N &
+```
+
+Test:
+```bash
+curl http://localhost:8000
+```
+
+**MySQL über Remote-Tunnel erreichbar machen:**
+```bash
+ssh -R 3307:localhost:3306 db01 -N &
+```
+
+---
+
+## 6. Authentifizierung & Autorisierung
+### 6.1 HTTPS aktivieren
+```bash
+sudo a2ensite default-ssl.conf
+sudo a2enmod ssl
+sudo service apache2 restart
+```
+
+### 6.2 Passwortschutz
+```bash
+sudo htpasswd -c /etc/apache2/.htpasswd guest
+```
+
+Apache erweitern:
+```apache
+<Directory "/var/www/html">
+    AuthType Basic
+    AuthName "Restricted Content"
+    AuthUserFile /etc/apache2/.htpasswd
+    Require valid-user
+</Directory>
+```
+
+### 6.3 LDAP
+LDAP-Einträge im LDIF-Format wurden importiert und anschliessend Apache mit LDAP-Auth erweitert.
+
+---
+
+## 7. Verifikation & Tests
+Folgende Tests wurden durchgeführt:
+- UFW-Regeln geprüft (`sudo ufw status`)
+- Curl-Anfragen für Ports
+- SSH-Key-Login ohne Passwort
+- Reverse Proxy über Browser getestet
+- HTTPS-Aufruf
+- LDAP-Login via Webinterface
+
+**Ergebnis:** Sicherheitseinstellungen funktionierten stabil und reproduzierbar.
+
+---
+
+## 8. Varianten – Pro / Kontra
+### UFW
+**Pro:** Einfach, schnell, ideal für kleine Systeme
+**Kontra:** Weniger flexibel als iptables
+
+### Reverse Proxy
+**Pro:** Versteckt interne Systeme, zusätzliche Sicherheit
+**Kontra:** Falsche Konfiguration = Risiko
+
+### SSH Public Key
+**Pro:** Sehr hohe Sicherheit
+**Kontra:** Einrichtung fehleranfällig
+
+### LDAP
+**Pro:** Zentrale Benutzerverwaltung
+**Kontra:** Komplex, erfordert präzise Konfiguration
+
+---
+
+## 9. Erkenntnisse
+- Sicherheit ist ein Zusammenspiel vieler Komponenten
+- Eine Fehlkonfiguration kann Systeme unzugänglich machen
+- SSH Public Key ist Passworten überlegen
+- LDAP mächtig, aber komplex
+- Apache bietet viele Sicherheitsfeatures
+
+---
+
+## 10. Fazit
+Mit Firewall, Reverse Proxy, SSH, HTTPS und LDAP wurde die Infrastruktur erfolgreich abgesichert. Damit wurde ein Sicherheitsniveau erreicht, das für professionelle Umgebungen geeignet ist.

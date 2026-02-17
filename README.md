@@ -197,62 +197,279 @@ Mit Git, VirtualBox, Vagrant und Visual Studio Code steht eine vollständige Ent
 
 
 # 10.02.2026
-# Dokumentation M300 – Infrastruktur-Automatisierung
+# M300 – 20 Infrastruktur-Automatisierung
 
 ## 1. Ausgangslage
-Im Modul M300 wurde eine dynamische Infrastruktur-Plattform aufgebaut.  
-Ziel war es, virtuelle Maschinen automatisiert zu erstellen und zu konfigurieren.  
-Die Umsetzung erfolgte mit Vagrant und VirtualBox im Sinne von Infrastructure as Code.
+Im Modul M300 wurde im zweiten Schritt das Thema **Infrastruktur-Automatisierung** behandelt. Dabei ging es darum, eine dynamische Infrastruktur-Plattform (Private Cloud) praktisch aufzubauen.
+Verwendete Tools:
 
-## 2. Zielsetzung
-Es sollte eine Umgebung entstehen, in der virtuelle Server nicht manuell, sondern über Konfigurationsdateien erstellt werden.  
-Dabei musste sichergestellt werden, dass die Infrastruktur jederzeit reproduzierbar ist.
+**Bereits vorhanden:**
+- GitHub
+- Git
+- VirtualBox
+- Vagrant
+- Visual Studio Code
 
-## 3. Grundlagen
+**Neu hinzugekommen:**
+- Packer
+- AWS (Amazon Web Services)
+- Vagrant AWS Plugin
 
-### Cloud Computing
-Cloud Computing bezeichnet die Bereitstellung von IT-Ressourcen über ein Netzwerk.  
-Dazu gehören:
+---
 
-- Rechenleistung  
-- Speicher  
-- Netzwerke  
-- Software  
+## 2. Ziel
+Ziele der Aufgabe:
 
-Man unterscheidet:
+- Cloud-Modelle (IaaS, PaaS, SaaS, CaaS) verstehen
+- Infrastructure as Code (IaC) erklären
+- Automatisierte VM-Erstellung mit Vagrant
+- Eigene Images mit Packer bauen
+- VM in der Cloud (AWS) automatisch bereitstellen
 
-- **IaaS:** virtuelle Maschinen und Infrastruktur  
-- **PaaS:** Plattform für Entwicklung  
-- **SaaS:** fertige Software über Internet  
+Endergebnis:
+→ Eine reproduzierbare, automatisierte Infrastruktur.
 
-### Infrastructure as Code
-Infrastructure as Code bedeutet, dass Infrastruktur über Code definiert wird.  
-Server, Netzwerke und Software werden automatisch erstellt.
+---
+
+## 3. Cloud Computing Grundlagen
+Cloud Computing bedeutet, IT‑Ressourcen über ein Netzwerk bereitzustellen statt lokal zu betreiben.
+
+### **Service-Modelle**
+**Infrastructure as a Service (IaaS)**
+Der Benutzer verwaltet virtuelle Maschinen selbst.
+Beispiel: *AWS EC2*
+
+**Platform as a Service (PaaS)**
+Nur die Anwendung wird bereitgestellt, die Infrastruktur übernimmt der Anbieter.
+Beispiel: *Microsoft Azure*
+
+**Software as a Service (SaaS)**
+Fertige Software wird direkt im Browser genutzt.
+Beispiel: *Google Workspace*
+
+**Container as a Service (CaaS)**
+Containerisierte Anwendungen werden verwaltet.
+Beispiel: *Docker*
+
+---
+
+## 4. Dynamic Infrastructure Platform
+Eine dynamische Infrastruktur-Plattform stellt virtualisierte Ressourcen bereit:
+CPU • RAM • Storage • Netzwerk
+
+### Beispiele
+**Public Cloud:**
+- Amazon Web Services
+- Microsoft Azure
+
+**Private Cloud:**
+- OpenStack
+- CloudStack
+
+**Lokale Virtualisierung:**
+- Oracle VM VirtualBox
+
+---
+
+## 5. Infrastructure as Code (IaC)
+Früher wurden Server manuell eingerichtet. Heute geschieht dies automatisch über Konfigurationsdateien.
+
+IaC bedeutet:
+- Infrastruktur wird als Code definiert
+- versioniert (Git)
+- getestet
+- automatisch ausgerollt
 
 **Vorteile:**
-- wiederholbare Umgebung  
-- schnellere Bereitstellung  
-- weniger Fehler  
-- einfache Änderungen  
-- Versionierung möglich  
+- Wiederholbarkeit
+- Schnellere Bereitstellung
+- Weniger Fehler
+- Bessere Zusammenarbeit
 
-## 4. Verwendete Werkzeuge
-Für die Umsetzung wurden folgende Tools eingesetzt:
+---
 
-- VirtualBox als Virtualisierungssoftware  
-- Vagrant zur Automatisierung von virtuellen Maschinen  
-- Bash/Shell für Provisioning  
-- optional Packer zur Image-Erstellung  
+## 6. Vagrant – Automatisierte VM-Erstellung
+Vagrant erstellt virtuelle Maschinen automatisiert.
 
-## 5. Umsetzung
-
-### 5.1 Vorbereitung
-Zuerst wurde die benötigte Software installiert:
-
-- VirtualBox  
-- Vagrant  
-
-Danach wurde geprüft, ob Vagrant korrekt installiert ist:
-
+### Schritte
+**Box hinzufügen:**
 ```bash
-vagrant --version
+vagrant box add ubuntu/xenial64
+```
+
+**Projekt erstellen:**
+```bash
+mkdir myserver
+cd myserver
+vagrant init ubuntu/xenial64
+vagrant up
+```
+
+**SSH Verbindung:**
+```bash
+vagrant ssh
+```
+
+### Provisionierung
+Im *Vagrantfile*:
+```ruby
+config.vm.provision "shell", inline: <<-SHELL
+  sudo apt-get update
+  sudo apt-get -y install apache2
+SHELL
+```
+
+**Test:**
+Browser öffnen:
+`http://localhost:8080` → Apache Testseite
+
+### Fehler & Lösungen
+**Port belegt:**
+→ anderen Host-Port im Vagrantfile definieren
+
+**VM startet nicht:**
+```bash
+vagrant destroy -f
+vagrant up
+```
+
+---
+
+## 7. Packer – Eigene Images erstellen
+Packer erstellt eigene VM‑Images.
+
+### Installation & Test
+- Packer herunterladen
+- In Verzeichnis kopieren
+- PATH setzen
+- Test:
+```bash
+packer
+```
+
+### Image erstellen
+Benötigt:
+- Ubuntu ISO
+- JSON-Template
+- Preseed Datei
+- Shell-Skripte
+
+**Build:**
+```bash
+packer build template.json
+```
+
+**Ergebnis:**
+- Automatische Ubuntu-Installation
+- Konfiguration via Shell
+- Erstellung einer Vagrant-Box
+
+### Fehler & Lösungen
+- ISO nicht gefunden → Pfad korrigieren
+- Preseed lädt nicht → HTTP Server prüfen
+- SSH Fehler → SSH Server in Preseed aktivieren
+
+---
+
+## 8. AWS Cloud Integration
+Für die Cloud-Integration wurde **AWS** genutzt.
+
+### Schritte
+- Root Account erstellt
+- IAM User (`vagrant-user`)
+- *EC2FullAccess* Policy
+- Security Group (Port 22 & 80 offen)
+- Key Pair erstellt
+
+### Vagrant AWS Plugin installieren
+```bash
+vagrant plugin install vagrant-aws
+vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
+```
+
+### VM in AWS erstellen
+```bash
+vagrant up web --provider=aws
+```
+
+**Ergebnis:**
+- EC2 Instanz automatisch erstellt
+- Apache installiert
+- Zugriff über Public IP
+
+### Fehler & Lösungen
+- Auth Fehler → Keys überprüfen
+- SSH Timeout → Security Group prüfen
+- Falsche Region → Region in config.rb anpassen
+
+---
+
+## 9. Varianten – Pro / Kontra
+
+### Lokale Virtualisierung (VirtualBox)
+**Vorteile:**
+- Keine Cloud-Kosten
+- Offline nutzbar
+- Einfach zu testen
+
+**Nachteile:**
+- Begrenzte Ressourcen
+- Weniger produktionsnah
+
+### AWS Cloud
+**Vorteile:**
+- Skalierbar
+- Realistische Umgebung
+- Weltweit verfügbar
+
+**Nachteile:**
+- Kosten
+- Komplexer
+- Sicherheitsrisiko bei Fehlkonfiguration
+
+### Packer vs. Manuelle Installation
+**Packer Vorteile:**
+- Wiederholbar
+- Automatisiert
+- Schnell
+
+**Manuell – Nachteile:**
+- Fehleranfällig
+- Zeitaufwendig
+- Nicht standardisiert
+
+---
+
+## 10. Verifikation & Tests
+Durchgeführte Tests:
+
+- `vagrant status`
+- Browser-Test (Apache)
+- SSH Verbindung
+- Mehrfaches Destroy & Rebuild
+- AWS EC2 Dashboard geprüft
+
+**Ergebnis:**
+→ Infrastruktur ist reproduzierbar und stabil.
+
+---
+
+## 11. Erkenntnisse
+- IaC reduziert manuelle Fehler deutlich.
+- Automatisierung spart viel Zeit.
+- Cloud-Plattformen sind leistungsfähig, aber komplex.
+- Sicherheit (IAM, SGs, Keys) ist essenziell.
+
+---
+
+## 12. Fazit
+Die dynamische Infrastruktur-Plattform wurde erfolgreich umgesetzt.
+
+Mit:
+- Vagrant
+- Packer
+- Oracle VM VirtualBox
+- Amazon Web Services
+
+konnte eine automatisierte und reproduzierbare Infrastruktur aufgebaut werden.
+Damit ist die Basis für professionelle Cloud- und DevOps-Prozesse geschaffen.

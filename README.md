@@ -958,3 +958,214 @@ Durchgeführte Tests:
 
 ## 13. Fazit
 Mit Docker wurde eine vollständige containerisierte Umgebung aufgebaut. Damit stehen nun Werkzeuge bereit, die in Cloud-, DevOps- und Microservice-Architekturen essenziell sind.
+
+
+# M300 – 35 Container-Sicherheit
+
+## 1. Ausgangslage
+Im Modul M300 wurde nach der Einführung in Docker und Containerisierung der Fokus auf die **Sicherheit** von containerisierten Anwendungen gelegt. Container sind leichtgewichtig und flexibel, bringen jedoch neue Risiken und Herausforderungen mit sich. Um Container produktiv betreiben zu können, müssen Logging, Monitoring, Absicherung und automatisierte Builds gewährleistet sein.
+
+---
+
+## 2. Ziel
+Ziele dieses Auftrags waren:
+- Logs und Monitoring für Container einrichten
+- Sicherheitsrisiken verstehen und reduzieren
+- Container gegen Angriffe absichern
+- Ressourcenbeschränkungen anwenden
+- Jenkins & Blue Ocean für automatisierte Builds nutzen
+- CI/CD-Grundlagen verstehen
+
+---
+
+## 3. Protokollieren & Überwachen
+
+### 3.1 Logging
+Container senden standardmässig alles an **STDOUT** und **STDERR**. Diese Logs können mit
+```bash
+docker logs <container>
+```
+abgerufen werden.
+
+### Logging-Treiber
+- `json-file` (Standard)
+- `syslog` (Host-Systemlog)
+- `none` (Logging deaktiviert)
+
+### Beispiele
+```bash
+docker run --name logtest ubuntu bash -c 'echo "stdout"; echo "stderr" >&2'
+docker logs logtest
+docker rm logtest
+```
+
+### Log-Streaming
+```bash
+docker logs -f streamtest
+```
+
+### Syslog-Logging
+```bash
+docker run -d --log-driver=syslog ubuntu
+```
+Logs anzeigen:
+```bash
+tail -f /var/log/syslog
+```
+
+---
+
+## 3.2 Monitoring – cAdvisor
+cAdvisor zeigt Metriken wie:
+- CPU
+- RAM
+- Netzwerk
+- Laufzeit
+- I/O
+
+Start:
+```bash
+docker run -d --name cadvisor -v /:/rootfs:ro -v /var/run:/var/run:rw -v /sys:/sys:ro -v /var/lib/docker/:/var/lib/docker:ro -p 8080:8080 google/cadvisor:latest
+```
+Zugriff: **http://localhost:8080**
+
+---
+
+## 4. Container sichern & beschränken
+Container haben besondere Sicherheitsrisiken, unter anderem:
+- Kernel Exploits
+- DoS-Angriffe
+- Container-Breakouts
+- Manipulierte Images
+- Verlorene Secrets
+- Zu hohe Berechtigungen
+
+### 4.1 Best Practices
+#### Container **nicht als root** betreiben
+```bash
+RUN groupadd -r user_grp && useradd -r -g user_grp user
+USER user
+```
+
+#### setuid/setgid-Binaries entfernen
+```bash
+RUN find / -perm +6000 -type f -exec chmod a-s {} \; || true
+```
+
+#### Dateisystem schreibgeschützt machen
+```bash
+docker run --read-only ubuntu touch x
+```
+
+#### Speicher begrenzen
+```bash
+docker run -m 128m --memory-swap 128m image
+```
+
+#### CPU begrenzen
+```bash
+docker run -c 512 image
+```
+
+#### Neustarts begrenzen
+```bash
+docker run -d --restart=on-failure:10 my-image
+```
+
+#### Capabilities reduzieren
+```bash
+docker run --cap-drop all --cap-add CHOWN ubuntu
+```
+
+#### ulimit anwenden
+```bash
+docker run --ulimit cpu=12:14 image
+```
+
+---
+
+## 5. Container nach Host trennen
+In Multi-Tenant-Setups sollte jeder Benutzer einen eigenen Docker-Host haben, um Breakouts oder Angriffe zu isolieren.
+
+---
+
+## 6. Weitere Sicherheitstipps
+- Container immer aktuell halten
+- Debug-Modi deaktivieren
+- Nur Reverse Proxy nach aussen öffnen
+- SELinux / AppArmor aktivieren
+- Secrets niemals im Image speichern
+- Netzwerkzugriff stark begrenzen
+- Regelmässige Security-Audits durchführen
+- Interne Kommunikation verschlüsseln
+
+---
+
+## 7. Automatisches Bauen (Continuous Integration)
+Continuous Integration (CI) bedeutet:
+- Automatisches Bauen nach jedem Commit
+- Automatische Tests
+- Höhere Softwarequalität
+- Kürzere Release-Zyklen
+
+### Tools
+- TravisCI
+- Jenkins
+- Blue Ocean (GUI-Erweiterung für Jenkins)
+
+---
+
+## 8. Jenkins & Blue Ocean
+### Blue Ocean starten
+```bash
+docker run --rm -u root -p 8082:8080 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME":/home jenkinsci/blueocean
+```
+
+Zugriff über: **http://localhost:8082**
+
+### Docker Images automatisch bauen
+Nach erfolgreichem Build erscheinen neue Images:
+```bash
+docker image ls
+```
+
+### Beispiel-Test
+```bash
+docker run -p 8081:8080 -d misegr/scsesi_order
+```
+Browser öffnen: **http://localhost:8081**
+
+---
+
+## 9. Verifikation & Tests
+Erfolgreich getestet wurden:
+- Logging (json, syslog)
+- Monitoring (cAdvisor)
+- Rechte- und Ressourcenbeschränkungen
+- Sicherheitsmechanismen
+- CI/CD-Pipelines in Jenkins
+- Automatischer Docker-Build
+- Bereitstellung der Applikation
+
+**Ergebnis:** Container liefen sicher, stabil und reproduzierbar.
+
+---
+
+## 10. Erkenntnisse
+- Container-Sicherheit ist entscheidend für Produktivsysteme
+- Monitoring ist unverzichtbar
+- DoS-Risiken lassen sich durch Limits stark reduzieren
+- CI/CD steigert Qualität und Sicherheit
+- Root in Containern vermeiden
+- Images immer verifizieren
+
+---
+
+## 11. Fazit
+In diesem Auftrag wurde vermittelt:
+- Wie Container überwacht werden
+- Wie man Container absichert
+- Wie Ressourcen kontrolliert werden
+- Wie automatisierte Builds funktionieren
+
+Damit sind alle Grundlagen geschaffen, um Container sicher, performant und professionell zu betreiben.

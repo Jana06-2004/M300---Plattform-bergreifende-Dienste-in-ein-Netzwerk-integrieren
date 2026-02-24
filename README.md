@@ -1204,7 +1204,7 @@ Container benötigen eine funktionierende Vernetzung – unabhängig davon, ob s
 - Routing
 
 ### **Load Balancing**
-Load Balancing verteilt Anfragen gleichmäßig auf mehrere Container, um Lastspitzen abzufangen.
+Load Balancing verteilt Anfragen gleichmässig auf mehrere Container, um Lastspitzen abzufangen.
 
 ### **Cluster**
 Ein Kubernetes-Cluster besteht aus:

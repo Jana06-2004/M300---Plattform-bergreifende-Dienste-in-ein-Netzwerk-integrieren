@@ -1169,3 +1169,168 @@ In diesem Auftrag wurde vermittelt:
 - Wie automatisierte Builds funktionieren
 
 Damit sind alle Grundlagen geschaffen, um Container sicher, performant und professionell zu betreiben.
+
+
+# M300 – 40 Kubernetes (K8s)
+
+## 1. Ausgangslage
+Nach der Einführung in Docker und Containerisierung wurde im Modul M300 der nächste Schritt behandelt: **Kubernetes**. Kubernetes ist das moderne Standardtool zur **Orchestrierung von Containern**, um skalierbare und verteilte Anwendungen zu betreiben. Dieser Auftrag diente zur Einführung der Grundbegriffe und zum Aufbau eines kleinen Kubernetes-Clusters.
+
+---
+
+## 2. Ziel
+Ziel des Auftrags war es:
+- Die wichtigsten Kubernetes-Konzepte zu verstehen
+- Grundlagen wie Service Discovery, Load Balancing und Cluster-Aufbau kennenzulernen
+- Kubernetes-Objekte wie Pods, ReplicaSets, Deployments und Services zu verstehen
+- Einen kleinen Kubernetes-Cluster aufzusetzen (Master + Worker)
+- Eine einfache Beispiel-Applikation (Apache) über YAML bereitzustellen
+
+---
+
+## 3. Grundbegriffe
+
+### **Service Discovery**
+Service Discovery hilft Clients dabei, automatisch herauszufinden:
+- Welche Service-Instanzen laufen
+- Unter welcher IP und welchem Port sie erreichbar sind
+
+In Microservice-Umgebungen ist das zwingend notwendig, da Dienste dynamisch starten und stoppen.
+
+### **Networking**
+Container benötigen eine funktionierende Vernetzung – unabhängig davon, ob sie auf demselben oder verschiedenen Hosts laufen. Kubernetes übernimmt:
+- IP-Vergabe
+- DNS-Namen
+- Routing
+
+### **Load Balancing**
+Load Balancing verteilt Anfragen gleichmäßig auf mehrere Container, um Lastspitzen abzufangen.
+
+### **Cluster**
+Ein Kubernetes-Cluster besteht aus:
+- **Master Node** (Steuerung)
+- **Worker Nodes** (Ausführung von Containern)
+
+Cluster bieten:
+- Skalierbarkeit
+- Hohe Verfügbarkeit
+- Ressourcenverwaltung
+
+---
+
+## 4. Kubernetes – Überblick
+Kubernetes (K8s) ist ein Open-Source-System zur Automatisierung von:
+- Deployment
+- Skalierung
+- Verwaltung von Containern
+
+Es wurde ursprünglich von Google entwickelt und später der CNCF übergeben.
+
+### **Wichtige Merkmale**
+- Immutable statt Mutable Infrastruktur
+- Deklarative Konfiguration
+- Selbstheilung (neustarten von Pods)
+- Entkoppelte APIs (Services, Ingress)
+- Skalierung über einfache Anpassung der Konfiguration
+- Infrastruktur wird abstrahiert
+
+---
+
+## 5. Kubernetes-Objekte
+
+### **Pod**
+Kleinste Einheit in Kubernetes, die einen oder mehrere Container beinhaltet.
+
+### **ReplicaSet**
+Stellt sicher, dass immer die konfigurierte Anzahl von Pods läuft.
+
+### **Deployment**
+Verwaltet ReplicaSets und ermöglicht Rolling Updates.
+
+### **Service**
+Stabile IP und Port, die auf Pods verweisen – auch wenn Pods ersetzt werden.
+
+### **Ingress**
+Reverse Proxy, ermöglicht Zugriff über URLs.
+
+---
+
+## 6. Beispiel – Apache Deployment (YAML)
+Beispielkonfiguration, bestehend aus **Service** und **Deployment**, um Apache bereitzustellen.
+
+Dies zeigt, wie eine Webapplikation über Kubernetes betrieben werden kann.
+
+---
+
+## 7. Kubernetes Cluster erstellen
+Für Übungszwecke wurde ein kleiner K8s‑Cluster aufgebaut.
+
+### **Clusteraufbau**
+- **1 Master Node**
+- **2 Worker Nodes**
+
+### **Hardwarevoraussetzungen**
+- Mindestens ~5 GB RAM für Master
+- 2–4 GB RAM pro Worker
+- Bei 32 GB RAM sind bis zu 7 VMs möglich
+
+### **Konfiguration (Beispiel)**
+```yaml
+master:
+  count: 1
+  cpus: 2
+  memory: 5120
+worker:
+  count: 2
+```
+
+### **Netzwerk**
+- DHCP deaktiviert
+- Fixe IP-Adressen
+- Host‑Only Netzwerk
+
+Beispiel:
+```yaml
+ip:
+  master: 192.168.137.100
+  worker: 192.168.137.111
+```
+
+Der Master und die Worker werden während der Installation automatisch gejoint.
+
+### **Hinweis**
+Ein Host‑Only Netzwerk bedeutet:
+- Zugriff nur vom Notebook aus
+- Keine externe Erreichbarkeit
+
+---
+
+## 8. Verifikation & Tests
+Folgende Tests wurden durchgeführt:
+- Clusterstatus überprüft:
+  ```bash
+  kubectl get nodes
+  kubectl get pods -A
+  ```
+- Apache Deployment angewendet
+- Service erfolgreich über NodePort/LoadBalancer erreichbar
+- Replica‑Anzahl angepasst → automatische Skalierung
+- Pods neu gestartet → Service blieb stabil
+
+**Ergebnis:** Der Cluster lief stabil und Anwendungen wurden korrekt bereitgestellt.
+
+---
+
+## 9. Erkenntnisse
+- Kubernetes abstrahiert Infrastruktur vollständig
+- YAML‑Dateien bieten deklarative, reproduzierbare Deployments
+- Services bleiben stabil, auch wenn Pods ersetzt werden
+- Kubernetes ermöglicht automatische Skalierung und Selbstheilung
+- Cluster benötigen deutlich mehr Ressourcen als Docker‑Einzelcontainer
+
+---
+
+## 10. Fazit
+Mit diesem Auftrag wurde erfolgreich ein funktionierender Kubernetes‑Cluster aufgebaut und grundlegende Kubernetes‑Objekte kennengelernt. Die Beispiele zeigten, wie Services bereitgestellt und wie Container in verteilten Umgebungen orchestriert werden.
+
+Damit ist eine wichtige Kompetenz für moderne Cloud‑Umgebungen und DevOps‑Workflows erreicht.

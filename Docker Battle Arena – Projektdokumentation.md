@@ -44,13 +44,19 @@ Browser → Frontend (Nginx :8080)
       cAdvisor Monitoring (:8082)
 ```
 
+![alt text](<Fotos-Projekt/Screenshot 2026-02-12 130204.png>)
+
 ---
 
 ## 3. Dienst konfigurieren & Monitoring einsetzen
 Alle Services sind in der Datei **docker-compose.yml** definiert. Wichtige Umgebungsvariablen wie `DB_HOST`, `DB_USER`, `DB_PASSWORD` und `DB_NAME` steuern die Backend‑Datenbankverbindung.
 
+![alt text](<Fotos-Projekt/Screenshot 2026-02-25 085045.png>)
+
 ### **Monitoring (cAdvisor)**
 Ich habe cAdvisor nachträglich ergänzt, da ich beim ersten Aufbau des Projekts das Monitoring vergessen hatte. Der Dienst wurde vollständig integriert und funktioniert nun korrekt.
+
+![alt text](<Fotos-Projekt/Screenshot 2026-02-25 085057.png>)
 
 ```yaml
 cadvisor:
@@ -87,6 +93,8 @@ Interne Kommunikation erfolgt über Docker‑DNS:
 - **Backend → MySQL:** `db:3306`
 - **Frontend → Backend:** `http://localhost:3000`
 
+![alt text](<Fotos-Projekt/Screenshot 2026-02-25 085142.png>)
+
 ---
 
 ## 5. Interaktion Hostsystem ↔ Container (Volumes)
@@ -107,6 +115,8 @@ volumes:
 - Daten bleiben auch nach `docker compose down` erhalten
 - Adminer zeigt gespeicherte Highscores
 - Im Docker Dashboard ist das Volume sichtbar
+
+![alt text](<Fotos-Projekt/Screenshot 2026-02-25 081015.png>)
 
 ---
 

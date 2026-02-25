@@ -74,8 +74,6 @@ cadvisor:
 
 Aufruf im Browser: **http://localhost:8082**
 
-![alt text](<Fotos-Projekt/Screenshot 2026-02-25 085343.png>)
-
 ---
 
 ## 4. Netzwerkverbindungen & Ports
@@ -130,6 +128,8 @@ Während der ersten Version des Projekts wurde das Monitoring nicht implementier
 - Funktion wurde getestet und unter `localhost:8082` erfolgreich bestätigt
 
 Damit ist das Monitoring jetzt vollständig dokumentiert und funktionsfähig.
+
+![alt text](<Fotos-Projekt/Screenshot 2026-02-25 085343.png>)
 
 ---
 

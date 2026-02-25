@@ -68,6 +68,8 @@ cadvisor:
 
 Aufruf im Browser: **http://localhost:8082**
 
+![alt text](<Fotos-Projekt/Screenshot 2026-02-25 085343.png>)
+
 ---
 
 ## 4. Netzwerkverbindungen & Ports
